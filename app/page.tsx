@@ -259,9 +259,9 @@ export default function Home() {
   return <>
     <a className="skip-link" href="#workspace">跳转到工作区</a>
     <header className="site-header">
-      <a className="brand" href="/" aria-label="潮玩种草 AI 助手首页"><span className="brand-mark"><Icon name="spark" size={23}/></span><span>潮玩种草 <b>AI</b> 助手</span></a>
+      <a className="brand" href="/" aria-label="潮玩种草 AI 助手首页"><span className="brand-mark"><Icon name="spark" size={23}/></span><span>潮玩种草<span className="brand-suffix"> <b>AI</b> 助手</span></span></a>
       <span className="header-tag">内容创作工作台</span>
-      <div className="header-actions"><span className="local-status"><i/>{connected ? "DeepSeek 已连接" : apiKey ? "Key 已配置" : "使用自己的 Key"}</span><button className="button outline small ai-settings-button" onClick={openSettings} disabled={isGenerating}><Icon name="spark" size={16}/>AI 设置</button><button className="button outline small" onClick={openPreview} disabled={isGenerating}><Icon name="book" size={17}/>查看演示样例</button></div>
+      <div className="header-actions"><span className="local-status"><i/>{connected ? "DeepSeek 已连接" : apiKey ? "Key 已配置" : "使用自己的 Key"}</span><button className="button outline small ai-settings-button" onClick={openSettings} disabled={isGenerating} aria-label={`AI 设置：${connected ? "DeepSeek 已连接" : apiKey ? "Key 已配置，待验证" : "未配置 Key"}`}><span className={`mobile-key-status ${connected ? "connected" : apiKey ? "configured" : ""}`} aria-hidden="true"/><Icon name="spark" size={16}/>AI 设置</button><button className="button outline small header-demo-button" onClick={openPreview} disabled={isGenerating}><Icon name="book" size={17}/>查看演示样例</button></div>
     </header>
 
     <main>
