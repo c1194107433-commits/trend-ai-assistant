@@ -50,16 +50,11 @@ svg { flex-shrink: 0; vertical-align: middle; }
 .hero { position: relative; height: 236px; overflow: hidden; background: #eee6fd; }
 .hero-art { position: absolute; inset: 0; background: url("/toy-hero.png") 50% 57% / cover no-repeat; }
 .hero-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #f5f1fc72, #f6f0fc22 47%, transparent 65%); }
-.hero-inner { position: relative; max-width: 1392px; margin: auto; padding: 27px 0; }
-.hero-eyebrow { display: flex; align-items: center; gap: 9px; font-size: 10px; letter-spacing: 1.8px; font-weight: 750; color: #7865a1; margin-bottom: 13px; }
-.hero-eyebrow > span:first-child { width: 5px; height: 5px; background: #9b80c7; border-radius: 50%; }
-.mini-sticker { font-size: 10px; letter-spacing: .4px; padding: 1px 8px; color: #686344; background: #f1f7cb; border: 1px solid #d8e7a7; border-radius: 4px; transform: rotate(-4deg); margin-left: 4px; }
+.hero-inner { position: relative; max-width: 1392px; margin: auto; padding: 27px 0; height: 100%; display: flex; flex-direction: column; justify-content: center; }
 .hero h1 { font-size: clamp(27px, 2.6vw, 38px); line-height: 1.45; letter-spacing: -1.2px; font-weight: 800; width: fit-content; }
 .underline-accent { position: relative; }
 .underline-accent::after { content: ""; position: absolute; background: #ff7b99; height: 5px; border-radius: 50%; left: 5%; right: 0; bottom: -6px; transform: rotate(-2deg); }
 .hero p { font-size: 14px; margin-top: 13px; color: #646078; }
-.hero-pills { display: flex; gap: 9px; margin-top: 18px; }
-.hero-pills span { border: 1px solid #ffffffb0; border-radius: 5px; color: #716384; background: #ffffff80; display: inline-flex; align-items: center; gap: 5px; font-size: 10px; padding: 2px 7px; }
 .mobile-break { display: none; }
 .workspace-top { max-width: 1392px; margin: 0 auto; padding: 20px 1px 13px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); }
 .breadcrumbs { display: flex; gap: 12px; }
@@ -101,6 +96,10 @@ legend span { font-size: 10px; font-weight: 400; color: #9698a8; margin-left: 7p
 .generation-message p { margin-top: 4px; }
 .text-button { border: 0; background: none; color: #7652a8; padding: 6px 0 0; display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 12px; }
 .output-panel { min-height: 657px; }
+.workspace:has(.empty-state) { align-items: stretch; }
+.output-panel:has(.empty-state) { display: flex; flex-direction: column; min-height: 0; }
+.output-panel:has(.empty-state) > .panel-heading { flex-shrink: 0; }
+.output-panel > .empty-state { flex: 1; }
 .empty-state { min-height: 550px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: radial-gradient(ellipse at 50% 35%, #f8f3ff 0, #fff 65%); border-radius: 12px; padding: 20px; }
 .empty-art { width: 218px; height: 205px; position: relative; display: grid; place-items: center; margin-bottom: 8px; }
 .paper-preview { position: relative; width: 133px; height: 160px; background: linear-gradient(145deg, #fff, #fbf8ff); border: 1px solid #e9dff7; border-radius: 14px; box-shadow: 8px 9px 0 #e9dcf5a0, 0 16px 35px #aa8bcd22; transform: rotate(-9deg); padding: 15px; }
@@ -125,7 +124,7 @@ legend span { font-size: 10px; font-weight: 400; color: #9698a8; margin-left: 7p
 .draft-meta i { background: #b99cd9; }
 .stale-note { display: flex; align-items: start; gap: 7px; font-size: 11px; background: #fff8e9; color: #977031; border-radius: 7px; padding: 9px 11px; margin-bottom: 14px; }
 .title-options { display: flex; flex-direction: column; gap: 8px; }
-.title-option { display: flex; align-items: center; gap: 8px; border: 1px solid #e5e4ed; border-radius: 8px; padding: 2px 11px; }
+.title-option { display: flex; align-items: center; gap: 8px; border: 1px solid #e5e4ed; border-radius: 8px; padding: 2px 11px; cursor: pointer; }
 .title-option.selected { background: #fff7f9; border-color: #ef809b; }
 .title-option input:not([type="radio"]) { background: transparent; border: 0; padding: 9px 3px; border-radius: 3px; font-size: 13px; box-shadow: none; }
 .title-option:focus-within { outline: 2px solid #e4d7f5; outline-offset: 2px; }
@@ -224,6 +223,22 @@ dialog::backdrop { background: #29213666; backdrop-filter: blur(5px); }
 .confirm-body { padding: 0 27px 20px; font-size: 13px; color: #82748e; line-height: 1.9; }
 .confirm-body p + p { margin-top: 8px; }
 
+/* Keep the two desktop tasks aligned as their content changes. */
+.generate-actions { padding-top: 20px; }
+.generate-actions .input-note { margin: 0 0 6px; }
+.generate-actions .connection-note { justify-content: flex-start; margin: 0 0 12px; }
+@media (min-width: 761px) {
+  .workspace { align-items: stretch; }
+  .input-panel, .output-panel { display: flex; flex-direction: column; }
+  .panel-heading { flex-shrink: 0; }
+  .input-panel > form, .input-panel > form > .generation-lock,
+  .output-panel > .editor-content { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .facts-field { display: flex; flex-direction: column; flex: 1; }
+  .facts-field textarea { flex: 1; }
+  .output-panel .copy-row { margin-top: auto; padding-top: 17px; align-items: flex-end; }
+  .output-panel .copy-row .button { min-height: 50px; }
+}
+
 @media (min-width: 1550px) {
   .hero-art { background-size: 1750px auto; background-color: #efddf8; }
 }
@@ -257,11 +272,7 @@ dialog::backdrop { background: #29213666; backdrop-filter: blur(5px); }
   .hero-art::after { background: linear-gradient(90deg, #f5f0fcf2, #f4edfc9c 48%, transparent); }
   .hero-inner { padding-top: 22px; margin: 0 20px; }
   .hero h1 { font-size: 28px; line-height: 1.45; }
-  .hero-eyebrow { margin-bottom: 10px; font-size: 8px; letter-spacing: 1.2px; }
-  .mini-sticker { font-size: 8px; }
   .hero p { font-size: 11px; max-width: 240px; margin-top: 12px; }
-  .hero-pills { margin-top: 13px; gap: 5px; }
-  .hero-pills span { font-size: 9px; }
   .mobile-break { display: block; }
   .workspace-top { margin: 0 16px; padding-top: 16px; }
   .workspace-top > span { display: none; }

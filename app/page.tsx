@@ -271,10 +271,8 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-art" aria-hidden="true"/>
         <div className="hero-inner">
-          <div className="hero-eyebrow"><span/> TOY STORIES, YOUR WAY <span className="mini-sticker">灵感营业中</span></div>
-          <h1 id="hero-title">让好玩的商品，<br className="mobile-break"/>有<span className="underline-accent">好看的表达</span></h1>
-          <p>填写真实资料，把潮玩灵感变成下一篇种草笔记。</p>
-          <div className="hero-pills"><span><Icon name="spark" size={14}/>灵感成文</span><span><Icon name="shield" size={14}/>表达自检</span><span><Icon name="copy" size={14}/>自由编辑</span></div>
+          <h1 id="hero-title">AI 帮你写<br className="mobile-break"/><span className="underline-accent">潮玩种草文案</span></h1>
+          <p>填写商品资料，生成种草笔记，自检风险表达。</p>
         </div>
       </section>
 
@@ -289,7 +287,7 @@ export default function Home() {
               <input id="product-name" value={input.name} maxLength={160} placeholder="例如：某个潮玩系列或桌面摆件" onChange={(event) => updateInput("name", event.target.value)} aria-invalid={!!errors.name} aria-describedby={errors.name ? "error-name" : undefined}/>
               {errors.name && <p className="field-error" id="error-name">{errors.name}</p>}
             </div>
-            <div className="field">
+            <div className="field facts-field">
               <label htmlFor="product-facts">真实商品资料 <span className="required">*</span></label>
               <textarea id="product-facts" value={input.facts} maxLength={6000} rows={6} placeholder={"写下已确认的商品特点，例如：\n· 造型与配色\n· 材质、尺寸或款式\n· 希望介绍的设计细节"} onChange={(event) => updateInput("facts", event.target.value)} aria-invalid={!!errors.facts} aria-describedby={`facts-help${errors.facts ? " error-facts" : ""}`}/>
               <div className="field-meta"><span id="facts-help">不清楚的价格、库存或概率，请不要猜测</span><span>{input.facts.length}/6000</span></div>
@@ -304,11 +302,13 @@ export default function Home() {
               <label className={`style-option ${input.style === style ? "selected" : ""}`} key={style}><input type="radio" name="style" value={style} checked={input.style === style} onChange={() => updateInput("style", style)}/><span aria-hidden="true">{["✦", "≡", "◈"][index]}</span>{style}</label>
             )}</div></fieldset>
             </fieldset>
-            <p className="input-note"><Icon name="info" size={15}/>仅使用真实资料，生成费用由你的 DeepSeek 账户承担</p>
-            <button type="submit" className="button primary generate-button" disabled={isGenerating}><Icon name="spark"/>{isGenerating ? "正在生成笔记…" : "生成笔记"}<Icon name="arrow" size={18}/></button>
-            <p className="connection-note"><span/>{apiKey ? "DeepSeek Flash · 一次生成标题、正文和话题" : "未配置 Key · 查看演示样例无需付费调用"}</p>
             {isGenerating && <div className="generation-progress" role="status"><p>正在等待 DeepSeek，已有内容会保留到生成成功。</p><button type="button" className="text-button" onClick={() => activeRequest.current?.abort()}>停止等待</button><small>停止等待后，已处理的请求仍可能计费。</small></div>}
             {generationMessage && <div className="generation-message" role="alert"><p>{generationMessage}</p><div className="message-actions"><button type="button" className="text-button" onClick={openSettings}>AI 设置</button><button type="button" className="text-button" onClick={openPreview}>查看预设样例 <Icon name="arrow" size={15}/></button></div></div>}
+            <div className="generate-actions">
+            <p className="input-note"><Icon name="info" size={15}/>仅使用真实资料，生成费用由你的 DeepSeek 账户承担</p>
+            <p className="connection-note"><span/>{apiKey ? "DeepSeek Flash · 一次生成标题、正文和话题" : "未配置 Key · 查看演示样例无需付费调用"}</p>
+            <button type="submit" className="button primary generate-button" disabled={isGenerating}><Icon name="spark"/>{isGenerating ? "正在生成笔记…" : "生成笔记"}<Icon name="arrow" size={18}/></button>
+            </div>
           </form>
         </section>
 
@@ -319,7 +319,9 @@ export default function Home() {
             {stale && <p className="stale-note" role="status"><Icon name="info" size={16}/>商品资料已修改，当前笔记仍基于上一次生成或载入的资料。</p>}
             {generationNotes.length > 0 && <div className="generation-notes"><strong>资料核对提醒</strong><ul>{generationNotes.map((text, index) => <li key={index}>{text}</li>)}</ul></div>}
             <fieldset className="titles-field"><legend>标题候选 <span>选一个喜欢的，也可以改一改</span></legend><div className="title-options">{note.titles.map((title, index) =>
-              <div className={`title-option ${note.selectedTitle === index ? "selected" : ""}`} key={index}>
+              <div className={`title-option ${note.selectedTitle === index ? "selected" : ""}`} key={index} onClick={() => {
+                if (!isGenerating) setNote((current) => current ? { ...current, selectedTitle: index } : current);
+              }}>
                 <input type="radio" name="title" aria-label={`选用标题 ${index + 1}`} checked={note.selectedTitle === index} onChange={() => setNote({ ...note, selectedTitle: index })}/>
                 <input aria-label={`标题 ${index + 1}`} value={title} maxLength={160} onChange={(event) => setNote({ ...note, titles: note.titles.map((old, i) => i === index ? event.target.value : old) })}/>
                 <span className="title-number">0{index + 1}</span>
