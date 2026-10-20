@@ -5,6 +5,18 @@ export const MAX_OUTPUT_TOKENS = 1800;
 export const INPUT_LIMITS = { name: 160, facts: 6000, audience: 200 } as const;
 export const STYLES = ["活泼种草", "简洁介绍", "细节分享"];
 
+export function productInputErrors(input: ProductInput): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const labels = { name: "商品名称", facts: "已确认的商品资料", audience: "目标人群" };
+  for (const field of Object.keys(INPUT_LIMITS) as (keyof typeof INPUT_LIMITS)[]) {
+    if (!input[field].trim()) errors[field] = `请填写${labels[field]}`;
+    else if (input[field].length > INPUT_LIMITS[field]) {
+      errors[field] = `${labels[field]}过长，最多 ${INPUT_LIMITS[field]} 个字符（部分表情按 2 个字符计算），请缩短后再生成。`;
+    }
+  }
+  return errors;
+}
+
 export function validKey(value: unknown): value is string {
   return typeof value === "string" && /^[\x21-\x7E]{16,256}$/.test(value);
 }

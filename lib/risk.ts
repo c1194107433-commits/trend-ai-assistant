@@ -32,6 +32,12 @@ export type RiskHit = {
   included: boolean;
 };
 
+// Match offsets stay UTF-16 for slicing; visible positions use the same
+// Unicode code-point counting as the editor's character counter.
+export function riskCharacterPosition(hit: RiskHit): number {
+  return Array.from(hit.text.slice(0, hit.start)).length + 1;
+}
+
 // Only convert width and ASCII case. Each replacement keeps UTF-16 length,
 // so match offsets still refer to the exact original text, including emoji.
 function normalize(text: string): string {

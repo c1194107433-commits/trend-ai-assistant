@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { scanNote, scanText } from "../lib/risk.ts";
+import { scanNote, scanText, riskCharacterPosition } from "../lib/risk.ts";
 import { demos, formatNote } from "../lib/content.ts";
 
 test("classroom example finds six distinct locations without overlapping price duplicates", () => {
@@ -16,6 +16,14 @@ test("full-width matching retains exact original positions after emoji", () => {
   assert.equal(hit.rule.id, "R03");
   assert.equal(text.slice(hit.start, hit.end), "１００％抽中");
   assert.equal(hit.term, "１００％抽中");
+  assert.equal(riskCharacterPosition(hit), 6);
+});
+
+test("display position counts a supplementary emoji once without moving the highlight", () => {
+  const [hit] = scanText("🧸保证抽中");
+  assert.equal(riskCharacterPosition(hit), 2);
+  assert.equal(hit.text.slice(hit.start, hit.end), "保证抽中");
+  assert.equal(riskCharacterPosition(scanText("云朵保证抽中")[0]), 3);
 });
 
 test("overlapping phrases collapse per location but repeated occurrences remain", () => {

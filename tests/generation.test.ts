@@ -1,11 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createGenerationHandler, createLimiter } from "../lib/generation-server.ts";
-import { parseGeneratedNote, parseProduct } from "../lib/generation-schema.ts";
+import { parseGeneratedNote, parseProduct, productInputErrors } from "../lib/generation-schema.ts";
 import { demos } from "../lib/content.ts";
 
 const fakeKey = "sk-TEST-ONLY-NOT-A-REAL-KEY-123456789";
 const product = demos[0].input;
+test("front-end validation catches bypassed limits, accepts boundaries and retains required-field errors", () => {
+  const boundary = { ...product, name: "名".repeat(160), facts: "料".repeat(6000), audience: "人".repeat(200) };
+  assert.deepEqual(productInputErrors(boundary), {});
+  assert.deepEqual(Object.keys(productInputErrors({ ...boundary, name: boundary.name + "名", facts: boundary.facts + "料", audience: boundary.audience + "人" })), ["name", "facts", "audience"]);
+  assert.equal(productInputErrors({ ...product, name: "  " }).name, "请填写商品名称");
+  assert.ok(productInputErrors({ ...product, name: "🧸".repeat(81) }).name);
+  assert.deepEqual(productInputErrors(product), {});
+});
 const generated = { titles: ["云朵标题一", "云朵标题二", "云朵标题三"], body: "虚构课堂示例：云朵造型搭配奶白与淡紫。", tags: ["潮玩", "云朵", "摆件", "配色", "桌面"], notes: ["材质与尺寸未提供，已省略。"] };
 function req(payload: unknown = { apiKey: fakeKey, input: product }, headers: Record<string, string> = {}, signal?: AbortSignal) {
   return new Request("http://localhost:3000/api/generate", {

@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { demos, emptyInput, formatNote, type NoteDraft, type ProductInput } from "@/lib/content";
-import { scanNote, type RiskHit } from "@/lib/risk";
-import { parseGeneratedNote, validKey } from "@/lib/generation-schema";
+import { scanNote, riskCharacterPosition, type RiskHit } from "@/lib/risk";
+import { parseGeneratedNote, productInputErrors, validKey } from "@/lib/generation-schema";
 
 function Icon({ name, size = 20 }: { name: "spark" | "copy" | "shield" | "arrow" | "close" | "book" | "info" | "check"; size?: number }) {
   const paths = {
@@ -23,7 +23,7 @@ function RiskItem({ hit }: { hit: RiskHit }) {
   const from = Math.max(0, hit.start - 18);
   const to = Math.min(hit.text.length, hit.end + 22);
   return <li className="risk-item">
-    <div className="risk-item-heading"><span className="risk-category">{hit.rule.level}</span><strong>{hit.rule.name}</strong><span>{hit.label} · 第 {hit.start + 1} 位</span></div>
+    <div className="risk-item-heading"><span className="risk-category">{hit.rule.level}</span><strong>{hit.rule.name}</strong><span>{hit.label} · 第 {riskCharacterPosition(hit)} 位</span></div>
     <p className="risk-excerpt">{from > 0 ? "…" : ""}{hit.text.slice(from, hit.start)}<mark>{hit.term}</mark>{hit.text.slice(hit.end, to)}{to < hit.text.length ? "…" : ""}</p>
     <p>{hit.rule.reason} {hit.rule.advice}</p>
   </li>;
@@ -163,10 +163,7 @@ export default function Home() {
   function generate(event: React.FormEvent) {
     event.preventDefault();
     if (activeRequest.current) return;
-    const nextErrors: Record<string, string> = {};
-    if (!input.name.trim()) nextErrors.name = "请填写商品名称";
-    if (!input.facts.trim()) nextErrors.facts = "请填写已确认的商品资料";
-    if (!input.audience.trim()) nextErrors.audience = "请填写目标人群";
+    const nextErrors = productInputErrors(input);
     setErrors(nextErrors);
     const first = Object.keys(nextErrors)[0];
     if (first) {
