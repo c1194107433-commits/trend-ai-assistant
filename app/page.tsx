@@ -29,6 +29,9 @@ function RiskItem({ hit }: { hit: RiskHit }) {
   </li>;
 }
 
+const demoOnly = process.env.NEXT_PUBLIC_DEMO_ONLY === "true";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function Home() {
   const [input, setInput] = useState<ProductInput>({ ...emptyInput });
   const [note, setNote] = useState<NoteDraft | null>(null);
@@ -101,6 +104,7 @@ export default function Home() {
     setGenerationMessage("");
   }
   function openSettings() {
+    if (demoOnly) return;
     if (activeRequest.current) return;
     setKeyDraft("");
     setKeyError("");
@@ -162,6 +166,7 @@ export default function Home() {
   }
   function generate(event: React.FormEvent) {
     event.preventDefault();
+    if (demoOnly) { openPreview(); return; }
     if (activeRequest.current) return;
     const nextErrors = productInputErrors(input);
     setErrors(nextErrors);
@@ -181,7 +186,7 @@ export default function Home() {
     void runGeneration();
   }
   async function runGeneration() {
-    if (activeRequest.current || !apiKey) return;
+    if (demoOnly || activeRequest.current || !apiKey) return;
     setConfirmGenerate(false);
     const snapshot = { ...input };
     const controller = new AbortController();
@@ -259,17 +264,17 @@ export default function Home() {
   return <>
     <a className="skip-link" href="#workspace">跳转到工作区</a>
     <header className="site-header">
-      <a className="brand" href="/" aria-label="潮玩种草 AI 助手首页"><span className="brand-mark"><Icon name="spark" size={23}/></span><span>潮玩种草<span className="brand-suffix"> <b>AI</b> 助手</span></span></a>
+      <a className="brand" href={`${basePath}/`} aria-label="潮玩种草 AI 助手首页"><span className="brand-mark"><Icon name="spark" size={23}/></span><span>潮玩种草<span className="brand-suffix"> <b>AI</b> 助手</span></span></a>
       <span className="header-tag">内容创作工作台</span>
-      <div className="header-actions"><span className="local-status"><i/>{connected ? "DeepSeek 已连接" : apiKey ? "Key 已配置" : "使用自己的 Key"}</span><button className="button outline small ai-settings-button" onClick={openSettings} disabled={isGenerating} aria-label={`AI 设置：${connected ? "DeepSeek 已连接" : apiKey ? "Key 已配置，待验证" : "未配置 Key"}`}><span className={`mobile-key-status ${connected ? "connected" : apiKey ? "configured" : ""}`} aria-hidden="true"/><Icon name="spark" size={16}/>AI 设置</button><button className="button outline small header-demo-button" onClick={openPreview} disabled={isGenerating}><Icon name="book" size={17}/><span className="desktop-demo-label">查看演示样例</span><span className="mobile-demo-label">演示样例</span></button></div>
+      <div className="header-actions"><span className="local-status"><i/>{demoOnly ? "课堂演示版" : connected ? "DeepSeek 已连接" : apiKey ? "Key 已配置" : "使用自己的 Key"}</span>{!demoOnly && <button className="button outline small ai-settings-button" onClick={openSettings} disabled={isGenerating} aria-label={`AI 设置：${connected ? "DeepSeek 已连接" : apiKey ? "Key 已配置，待验证" : "未配置 Key"}`}><span className={`mobile-key-status ${connected ? "connected" : apiKey ? "configured" : ""}`} aria-hidden="true"/><Icon name="spark" size={16}/>AI 设置</button>}<button className="button outline small header-demo-button" onClick={openPreview} disabled={isGenerating}><Icon name="book" size={17}/><span className="desktop-demo-label">查看演示样例</span><span className="mobile-demo-label">演示样例</span></button></div>
     </header>
 
     <main>
       <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-art" aria-hidden="true"/>
+        <div className="hero-art" style={{ backgroundImage: `url(${basePath}/toy-hero.png)` }} aria-hidden="true"/>
         <div className="hero-inner">
           <h1 id="hero-title">AI 帮你写<br className="mobile-break"/><span className="underline-accent">潮玩种草文案</span></h1>
-          <p>填写商品资料，生成种草笔记，自检风险表达。</p>
+          <p>{demoOnly ? "演示版 · 体验样例编辑、表达自检与复制，暂不提供 AI 生成。" : "填写商品资料，生成种草笔记，自检风险表达。"}</p>
         </div>
       </section>
 
@@ -302,9 +307,9 @@ export default function Home() {
             {isGenerating && <div className="generation-progress" role="status"><p>正在等待 DeepSeek，已有内容会保留到生成成功。</p><button type="button" className="text-button" onClick={() => activeRequest.current?.abort()}>停止等待</button><small>停止等待后，已处理的请求仍可能计费。</small></div>}
             {generationMessage && <div className="generation-message" role="alert"><p>{generationMessage}</p><div className="message-actions"><button type="button" className="text-button" onClick={openSettings}>AI 设置</button><button type="button" className="text-button" onClick={openPreview}>查看预设样例 <Icon name="arrow" size={15}/></button></div></div>}
             <div className="generate-actions">
-            <p className="input-note"><Icon name="info" size={15}/>仅使用真实资料，生成费用由你的 DeepSeek 账户承担</p>
-            <p className="connection-note"><span/>{apiKey ? "DeepSeek Flash · 一次生成标题、正文和话题" : "未配置 Key · 查看演示样例无需付费调用"}</p>
-            <button type="submit" className="button primary generate-button" disabled={isGenerating}><Icon name="spark"/>{isGenerating ? "正在生成笔记…" : "生成笔记"}<Icon name="arrow" size={18}/></button>
+            <p className="input-note"><Icon name="info" size={15}/>{demoOnly ? "当前为预设样例演示，不调用 AI，无需填写 Key" : "仅使用真实资料，生成费用由你的 DeepSeek 账户承担"}</p>
+            <p className="connection-note"><span/>{demoOnly ? "可编辑商品资料；修改不会自动生成新文案" : apiKey ? "DeepSeek Flash · 一次生成标题、正文和话题" : "未配置 Key · 查看演示样例无需付费调用"}</p>
+            <button type="submit" className="button primary generate-button" disabled={isGenerating}><Icon name="spark"/>{demoOnly ? "选择演示样例" : isGenerating ? "正在生成笔记…" : "生成笔记"}<Icon name="arrow" size={18}/></button>
             </div>
           </form>
         </section>
@@ -348,7 +353,7 @@ export default function Home() {
     </main>
     <div className={`toast ${notice ? "visible" : ""}`} role="status" aria-live="polite">{notice && <><Icon name="info" size={18}/>{notice}</>}</div>
 
-    <dialog ref={settingsRef} className="settings-dialog" aria-labelledby="settings-heading" onClose={() => { setSettingsOpen(false); setKeyDraft(""); setKeyConsent(false); setKeyError(""); }}>
+    {!demoOnly && <dialog ref={settingsRef} className="settings-dialog" aria-labelledby="settings-heading" onClose={() => { setSettingsOpen(false); setKeyDraft(""); setKeyConsent(false); setKeyError(""); }}>
       <div className="dialog-header"><div><p className="eyebrow">YOUR KEY, YOUR CONTROL</p><h2 id="settings-heading">连接你的 DeepSeek</h2></div><button className="icon-button" aria-label="关闭 AI 设置" onClick={() => setSettingsOpen(false)}><Icon name="close"/></button></div>
       <form className="settings-form" onSubmit={saveKey}>
         <div className="provider-card"><span className="provider-icon"><Icon name="spark" size={24}/></span><div><strong>DeepSeek Flash</strong><p>非思考模式 · 一次生成完整笔记</p></div><span className="badge">{connected ? "连接正常" : apiKey ? "已配置 · 待验证" : "未配置"}</span></div>
@@ -359,7 +364,7 @@ export default function Home() {
         <p className="settings-footnote">保存设置不会调用 AI 或产生模型费用。首次生成成功后才会确认连接正常；超时或停止等待不保证免计费。</p>
         <div className="settings-actions"><button type="button" className="button outline" onClick={clearKey} disabled={!apiKey && !keyDraft}>清除 Key</button><button type="submit" className="button primary" disabled={!keyConsent || !keyDraft.trim()}>保存设置</button></div>
       </form>
-    </dialog>
+    </dialog>}
 
     <dialog ref={confirmGenerateRef} className="confirm-dialog" aria-labelledby="generate-confirm-heading" onClose={() => setConfirmGenerate(false)}>
       <div className="dialog-header"><h2 id="generate-confirm-heading">生成一篇新的笔记？</h2><button className="icon-button" aria-label="关闭生成确认" onClick={() => setConfirmGenerate(false)}><Icon name="close"/></button></div>

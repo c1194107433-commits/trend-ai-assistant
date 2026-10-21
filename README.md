@@ -75,3 +75,15 @@ npm run build
 密钥文件已加入 Git 忽略规则。应用不配置站长公共 Key，不将真实密钥写入代码或仓库。公开部署前仍需检查托管日志、共享限流和服务器费用。
 
 产品方向见 [需求文档](cl_zc_ai_prd.md)、[项目约束](project_constraints.md)、[页面规划](page_flow_plan.md)。
+
+## GitHub Pages 课堂演示版
+
+访问地址：https://c1194107433-commits.github.io/trend-ai-assistant/
+
+演示版只提供预设样例、编辑、词表自检和复制，不收集 API Key、不调用 DeepSeek。
+正常 `npm run build` 仍构建带后端的完整版本，未来可以部署到 Vercel。
+
+运行 `node scripts/build-pages.mjs` 生成 `.pages-build/out/`，发布目录内容到 `gh-pages` 分支根目录（包含 `.nojekyll`）。GitHub Pages 的发布来源为该分支。
+脚本只在忽略的临时目录中移除 API 路由，原始后端源码不受影响。
+演示开关 `NEXT_PUBLIC_DEMO_ONLY=true` 及仓库路径只用于静态构建；正式部署不要设置这些演示环境变量。
+源码推送到 main 不会自动更新演示站点，需要重新构建并发布 gh-pages。
