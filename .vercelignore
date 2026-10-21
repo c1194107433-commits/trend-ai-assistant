@@ -1,0 +1,7 @@
+.pages-build
+design
+tests
+scripts
+*.md
+.env*
+*.tsbuildinfo

@@ -87,3 +87,12 @@ npm run build
 脚本只在忽略的临时目录中移除 API 路由，原始后端源码不受影响。
 演示开关 `NEXT_PUBLIC_DEMO_ONLY=true` 及仓库路径只用于静态构建；正式部署不要设置这些演示环境变量。
 源码推送到 main 不会自动更新演示站点，需要重新构建并发布 gh-pages。
+
+## Vercel 完整 AI 版本
+
+正式地址：https://trend-ai-assistant.vercel.app/
+
+部署项目：`qiyuan6/trend-ai-assistant`。使用标准 Next.js 构建，包含 `/api/generate` 后端；访客自行在页面填写 DeepSeek Key，不配置站长公共 Key。
+当前通过 Vercel CLI 发布，尚未连接 GitHub 自动部署。更新生产环境使用 `vercel deploy --prod --scope qiyuan6`，仅在确认本地改动可发布后执行。
+`.vercelignore` 排除演示构建目录、设计截图、测试、文档和本地环境文件，`.vercel` 仅保存本机项目关联且不提交。
+GitHub Pages 仍保留为独立的静态演示站点。
